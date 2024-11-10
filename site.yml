@@ -1,0 +1,23 @@
+---
+- hosts: 
+    - master
+    - workers
+  tags: ['init']
+  vars_files:
+    - ./secrets/secrets.yml
+  roles:
+    - users
+    - ssh
+    - iptables
+    - apt
+    - docker
+    # - kubeadm
+  gather_facts: true
+# - hosts:
+#     - master
+#   roles:
+#     - master_node
+# - hosts:
+#     - worker
+#   roles:
+#     - worker_node
