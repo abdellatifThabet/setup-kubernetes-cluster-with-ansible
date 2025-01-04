@@ -8,11 +8,9 @@ VAULT_PASS_FILE = ./.vault-pass.txt
 
 init-provision: ## Run ansible-playbook for initilization
 	ansible-playbook ./site.yml -i ./inventories/hosts --tags init --vault-password-file $(VAULT_PASS_FILE)
-#-e ansible_ssh_user=ubuntu
 
 provision: ## Run ansible-playbook
 	ansible-playbook ./site.yml -i ./inventories/hosts --skip-tags init --vault-password-file $(VAULT_PASS_FILE)
-# --ask-become-pass
 
 # encrypt secrets file
 encrypt-secrets:

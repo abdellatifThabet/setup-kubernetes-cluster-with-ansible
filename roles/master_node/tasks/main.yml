@@ -1,18 +1,62 @@
 ---
 
+- name: Set the hostname for the master node
+  become: yes
+  hostname:
+    name: master
+
+- name: Add hostname to /etc/hosts for local resolution
+  become: yes
+  lineinfile:
+    path: /etc/hosts
+    line: "127.0.0.1   master"
+    state: present
+    
 - name: Allow ports for master node
   become: yes
-  ufw:
-    state: enabled
-    rule: allow
-    to_port: '{{ item }}'
+  command: ufw allow '{{ item }}'
   with_items:
     - [6443, 2379, 2380, 10250, 10251, 10252]
 
-- name: Init kubernetes cluster
+- name: Reset existing Kubernetes cluster if any
+  become: yes
+  command: kubeadm reset -f
+  ignore_errors: yes
+
+- name: Remove existing kubeconfig files if present
+  become: yes
+  file:
+    path: "{{ item }}"
+    state: absent
+  with_items:
+    - /etc/kubernetes/admin.conf
+    - /etc/kubernetes/super-admin.conf
+  ignore_errors: yes
+
+- name: Remove Kubernetes manifests if they exist (clean up)
+  become: yes
+  file:
+    path: "{{ item }}"
+    state: absent
+  with_items:
+    - /etc/kubernetes/manifests/kube-apiserver.yaml
+    - /etc/kubernetes/manifests/kube-controller-manager.yaml
+    - /etc/kubernetes/manifests/kube-scheduler.yaml
+    - /etc/kubernetes/manifests/etcd.yaml
+  ignore_errors: yes
+
+- name: Init Kubernetes cluster
   become: yes
   shell: |
     kubeadm init --node-name master --pod-network-cidr=10.244.0.0/16
+  register: kubeadm_init_output
+  ignore_errors: yes
+
+- name: Debug the output of kubeadm init
+  debug:
+    var: kubeadm_init_output
+  when: kubeadm_init_output is defined and kubeadm_init_output.stdout is not search("error")
+
 
 - name: Create kubernetes config directory
   file:

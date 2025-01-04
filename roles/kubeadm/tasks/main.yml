@@ -1,24 +1,34 @@
 ---
 
-- name: Add GPG key for kubeadm
-  become: yes
-  apt_key:
-    url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
+- name: Ensure APT keyrings directory exists
+  file:
+    path: /etc/apt/keyrings
+    state: directory
+    mode: '0755'
 
-- name: Add apt repository for kubeadm
-  become: yes
-  apt_repository:
-    repo: "deb http://apt.kubernetes.io/ kubernetes-xenial main"
+# - name: Add GPG key for kubeadm
+#   become: yes
+#   apt_key:
+#     url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
 
-- name: apt install kubeadm, kubelet and kubectl
+# - name: Add apt repository for kubeadm
+#   become: yes
+#   apt_repository:
+#     repo: "deb http://apt.kubernetes.io/ kubernetes-xenial main"
+
+- name: Update apt cache
   apt:
-    name: "{{ packages }}"
-    state: present
-  vars:
-    packages:
+    update_cache: yes
+
+- name: Install Kubernetes packages
+  apt:
+    name:
       - kubeadm
-      - kubelet
       - kubectl
+      - kubelet
+    state: present
+  become: yes
+
 
 - name: Disable swapoff
   become: yes

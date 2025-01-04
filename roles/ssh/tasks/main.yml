@@ -35,7 +35,7 @@
     insertafter: "^#PasswordAuthentication"
     line: "PasswordAuthentication no"
   notify:
-    - restart sshd
+    - Restart SSH service
 
 - name: change sshd_config for disabling permit root login
   lineinfile:
@@ -44,4 +44,4 @@
     line: "PermitRootLogin no"
     state: "present"
   notify:
-    - restart sshd
+    - Restart SSH service

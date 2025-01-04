@@ -11,13 +11,15 @@
     - iptables
     - apt
     - docker
-    # - kubeadm
+    - kubeadm
   gather_facts: true
-# - hosts:
-#     - master
-#   roles:
-#     - master_node
-# - hosts:
-#     - worker
-#   roles:
-#     - worker_node
+- hosts:
+    - master
+  vars_files:
+    - ./secrets/secrets.yml
+  roles:
+    - master_node
+- hosts:
+    - worker
+  roles:
+    - worker_node
