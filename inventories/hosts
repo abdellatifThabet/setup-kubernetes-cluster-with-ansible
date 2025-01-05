@@ -1,5 +1,0 @@
-[master]
-server1 ansible_host=146.59.229.115
-
-[workers]
-server2 ansible_host=51.83.97.41
